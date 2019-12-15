@@ -40,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _userId = prefs.getString('userId');
       _isCheckedIn = prefs.getBool('userCheck');
       _loginStatus = prefs.getBool('userStatus');
+      _time = prefs.getString('userCheckTime');
     });
   }
 
@@ -108,14 +109,39 @@ class _MyHomePageState extends State<MyHomePage> {
       });
 
       prefs.setBool('userCheck', _isCheckedIn);
+      prefs.setString('userCheckTime', _time);
 
       return true;
     }
   }
 
+  void _logoutAction(String choice) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+    Navigator.pushReplacementNamed(context, Constant.FORM);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0.0,
+        actionsIconTheme: IconThemeData(color: Colors.black),
+        actions: <Widget>[
+          PopupMenuButton<String>(
+            onSelected: _logoutAction,
+            itemBuilder: (context) {
+              return Constant.choices.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
+          ),
+        ],
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
