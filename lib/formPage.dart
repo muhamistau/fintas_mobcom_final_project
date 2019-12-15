@@ -60,7 +60,7 @@ class FormPageState extends State<FormPage> {
                 ),
                 validator: (value) {
                   if (value.isEmpty) {
-                    return 'Tolong masukan email yang valid';
+                    return 'Please input valid email address';
                   }
                   return null;
                 },
@@ -105,7 +105,7 @@ class FormPageState extends State<FormPage> {
                     }
                   },
                   child: Text(
-                    'Submit',
+                    'Login',
                     style: TextStyle(
                       color: Colors.white,
                     ),
@@ -133,8 +133,8 @@ class FormPageState extends State<FormPage> {
 
     setState(() {
       _canCheckBiometric = canCheckBiometric;
-      if (_canCheckBiometric) _biometricsAvailable = 'Perangkat anda mendukung penggunaan sensor biometrics';
-      else _biometricsAvailable = 'Perangkat anda tidak mendukung penggunaan sensor biometrics';
+      if (_canCheckBiometric) _biometricsAvailable = 'Your device support biometrics sensor';
+      else _biometricsAvailable = 'Your device does not support biometrics sensor';
     });
   }
 
@@ -180,7 +180,7 @@ class FormPageState extends State<FormPage> {
       return true;
     } else {
       setState(() {
-        _login = "Email atau password mungkin salah";
+        _login = "Your email or password might be wrong";
       });
       return false;
     }

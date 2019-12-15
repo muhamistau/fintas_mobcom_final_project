@@ -45,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _getDeviceToken() async {
     _token = await DeviceId.getID;
-    Fluttertoast.showToast(msg: "Login berhasil");
+    Fluttertoast.showToast(msg: "Login successful");
   }
 
 //  Future<void> _getListOfBiometricTypes() async {
@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
     bool isAuthorized = false;
     try {
       isAuthorized = await _localAuthentication.authenticateWithBiometrics(
-        localizedReason: "Silahkan gunakan sensor sidik jari anda untuk melakukan presensi",
+        localizedReason: "Gently place your finger on the fingerprint sensor to record your attendance",
         useErrorDialogs: true,
         stickyAuth: true,
       );
@@ -131,14 +131,14 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Padding(
               padding: EdgeInsets.only(bottom: 16),
-              child: Text('Selamat datang, $_userName'),
+              child: Text('Welcome, $_userName'),
             ),
             Text(
-              'Status Login',
+              'Login status',
               textAlign: TextAlign.center,
             ),
             Text(
-              _loginStatus ? 'Berhasil' : 'Gagal',
+              _loginStatus ? 'Success' : 'Failed',
               style: TextStyle(
                 color: _loginStatus ? Colors.green : Colors.red
               ),
@@ -157,11 +157,11 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Text(
-              'Presensi Terakhir',
+              'Last attendance',
               textAlign: TextAlign.center,
             ),
             Text(
-              _isCheckedIn ? 'Masuk\n$_time' : 'Keluar\n$_time',
+              _isCheckedIn ? 'Checked-In\n$_time' : 'Checked-Out\n$_time',
               textAlign: TextAlign.center,
               style: TextStyle(
                   color: _isCheckedIn ? Colors.green : Colors.red
