@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_id/device_id.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -17,6 +18,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final LocalAuthentication _localAuthentication = LocalAuthentication();
+
 //  String _authorizedOrNot = "Not Authorized";
 //  List<BiometricType> _availableBiometricTypes = List<BiometricType>();
   String _userName = '';
@@ -68,7 +70,8 @@ class _MyHomePageState extends State<MyHomePage> {
     bool isAuthorized = false;
     try {
       isAuthorized = await _localAuthentication.authenticateWithBiometrics(
-        localizedReason: "Gently place your finger on the fingerprint sensor to record your attendance",
+        localizedReason:
+            "Gently place your finger on the fingerprint sensor to record your attendance",
         useErrorDialogs: true,
         stickyAuth: true,
       );
@@ -104,8 +107,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
       setState(() {
         _time = attendance.time;
-        if (_isCheckedIn) _isCheckedIn = false;
-        else _isCheckedIn = true;
+        if (_isCheckedIn)
+          _isCheckedIn = false;
+        else
+          _isCheckedIn = true;
       });
 
       prefs.setBool('userCheck', _isCheckedIn);
@@ -119,6 +124,16 @@ class _MyHomePageState extends State<MyHomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.clear();
     Navigator.pushReplacementNamed(context, Constant.FORM);
+  }
+
+  String getDartDateFromNetUTC(String netUtcDate) {
+//    print(netUtcDate);
+    var dateParts = netUtcDate.split(".");
+    var anotherDate = dateParts[0].split('T');
+//    print(anotherDate);
+    var actualDate = DateFormat('yyyy-MM-dd - HH:mm')
+        .format(DateTime.parse("${anotherDate[0]} ${anotherDate[1]}Z"));
+    return actualDate;
   }
 
   @override
@@ -165,9 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               _loginStatus ? 'Success' : 'Failed',
-              style: TextStyle(
-                color: _loginStatus ? Colors.green : Colors.red
-              ),
+              style: TextStyle(color: _loginStatus ? Colors.green : Colors.red),
             ),
             Padding(
               padding: EdgeInsets.symmetric(vertical: 16.0),
@@ -175,7 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Theme.of(context).primaryColor,
                 onPressed: _authorizeNow,
                 child: Text(
-                  'Presensi',
+                  _isCheckedIn ? 'Checked-In' : 'Checked-Out',
                   style: TextStyle(
                     color: Colors.white,
                   ),
@@ -187,11 +200,11 @@ class _MyHomePageState extends State<MyHomePage> {
               textAlign: TextAlign.center,
             ),
             Text(
-              _isCheckedIn ? 'Checked-In\n$_time' : 'Checked-Out\n$_time',
+              _isCheckedIn
+                  ? 'Checked-In\n${getDartDateFromNetUTC(_time)}'
+                  : 'Checked-Out\n${getDartDateFromNetUTC(_time)}',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: _isCheckedIn ? Colors.green : Colors.red
-              ),
+              style: TextStyle(color: _isCheckedIn ? Colors.green : Colors.red),
             ),
 //            Text("Can we check Biometric : $_canCheckBiometric"),
 //            RaisedButton(
