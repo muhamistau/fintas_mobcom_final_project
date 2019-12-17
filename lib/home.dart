@@ -27,6 +27,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isCheckedIn = false;
   bool _loginStatus = false;
   String _time = '-';
+  String _connection = '';
 
   @override
   void initState() {
@@ -71,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       isAuthorized = await _localAuthentication.authenticateWithBiometrics(
         localizedReason:
-            "Gently place your finger on the fingerprint sensor to record your attendance",
+            "Gently place your finger on the fingerprint sensor to ${_isCheckedIn ? "Checked-In" : "Checked-Out"}",
         useErrorDialogs: true,
         stickyAuth: true,
       );
@@ -92,7 +93,15 @@ class _MyHomePageState extends State<MyHomePage> {
     Map<String, String> headers = {"Content-type": "application/json"};
     String json = '{"userId": "$userId", "token": "$token"}';
     // make POST request
-    Response response = await post(url, headers: headers, body: json);
+    Response response;
+    try {
+      response = await post(url, headers: headers, body: json);
+    } on Exception catch(error) {
+      setState(() {
+        _connection = 'Failed, please check your connection';
+      });
+    }
+
     // check the status code for the result
     int statusCode = response.statusCode;
     // this API passes back the id of the new item added to the body
@@ -106,6 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
       prefs.setString('attendanceTime', attendance.time);
 
       setState(() {
+        _connection = '';
         _time = attendance.time;
         if (_isCheckedIn)
           _isCheckedIn = false;
@@ -127,13 +137,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   String getDartDateFromNetUTC(String netUtcDate) {
-//    print(netUtcDate);
-    var dateParts = netUtcDate.split(".");
-    var anotherDate = dateParts[0].split('T');
-//    print(anotherDate);
-    var actualDate = DateFormat('yyyy-MM-dd - HH:mm')
-        .format(DateTime.parse("${anotherDate[0]} ${anotherDate[1]}Z"));
-    return actualDate;
+    if (netUtcDate != null) {
+      //    print(netUtcDate);
+      var dateParts = netUtcDate.split(".");
+      var anotherDate = dateParts[0].split('T');
+      //    print(anotherDate);
+      var actualDate = DateFormat('yyyy-MM-dd - HH:mm')
+          .format(DateTime.parse("${anotherDate[0]} ${anotherDate[1]}Z"));
+      return actualDate;
+    } else {
+      return "-";
+    }
   }
 
   @override
@@ -188,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Theme.of(context).primaryColor,
                 onPressed: _authorizeNow,
                 child: Text(
-                  _isCheckedIn ? 'Checked-In' : 'Checked-Out',
+                  _isCheckedIn ? 'Checked-Out' : 'Checked-In',
                   style: TextStyle(
                     color: Colors.white,
                   ),
@@ -205,6 +219,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   : 'Checked-Out\n${getDartDateFromNetUTC(_time)}',
               textAlign: TextAlign.center,
               style: TextStyle(color: _isCheckedIn ? Colors.green : Colors.red),
+            ),
+            Text(
+              _connection,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.red),
             ),
 //            Text("Can we check Biometric : $_canCheckBiometric"),
 //            RaisedButton(

@@ -25,6 +25,7 @@ class FormPageState extends State<FormPage> {
   bool _obscureText = true;
   String _userId = '';
   String _login = '';
+  String _connection = '';
 
   @override
   void initState() {
@@ -92,18 +93,16 @@ class FormPageState extends State<FormPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 child: MaterialButton(
+                  disabledColor: Colors.grey,
                   color: Theme.of(context).primaryColor,
-                  onPressed: () {
-                    // Validate returns true if the form is valid, or false
-                    // otherwise.
-                    if (_formKey.currentState.validate()) {
-                      // If the form is valid, display a Snackbar.
-//                        Scaffold.of(context)
-//                            .showSnackBar(SnackBar(content: Text('Processing Data')));
-                      _loginPostRequest(
-                          emailController.text, passwordController.text);
+                  onPressed: (_canCheckBiometric) ? () {
+                      // Validate returns true if the form is valid, or false
+                      // otherwise.
+                      if (_formKey.currentState.validate()) {
+                        _loginPostRequest(
+                        emailController.text, passwordController.text);
                     }
-                  },
+                  } : null,
                   child: Text(
                     'Login',
                     style: TextStyle(
@@ -113,7 +112,15 @@ class FormPageState extends State<FormPage> {
                 ),
               ),
               Text(_login),
-              Text(_biometricsAvailable)
+              Text(
+                _biometricsAvailable,
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                _connection,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.red),
+              ),
             ],
           ),
         ),
@@ -155,7 +162,15 @@ class FormPageState extends State<FormPage> {
     Map<String, String> headers = {"Content-type": "application/json"};
     String json = '{"email": "$email", "password": "$password"}';
     // make POST request
-    Response response = await post(url, headers: headers, body: json);
+    Response response;
+    try {
+      response = await post(url, headers: headers, body: json);
+    } on Exception catch(error) {
+      setState(() {
+        _connection = 'Failed, please check your connection';
+      });
+    }
+
     // check the status code for the result
 //    int statusCode = response.statusCode;
     // this API passes back the id of the new item added to the body
